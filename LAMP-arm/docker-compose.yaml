@@ -3,8 +3,8 @@ version: '3.8'
 services:
   apache:
     image: php:8.2-apache
-    labels:
-      - dev.orbstack.domains=apache-www.local
+    # labels:
+      # - dev.orbstack.domains=apache-www.local
     container_name: lamp_apache
     restart: always
     volumes:
@@ -19,8 +19,8 @@ services:
 
   mysql:
     image: mysql:8.0
-    labels:
-      - dev.orbstack.domains=miesecuele.local
+    # labels:
+    #   - dev.orbstack.domains=miesecuele.local
     container_name: lamp_mysql
     restart: always
     environment:
@@ -35,8 +35,8 @@ services:
 
   phpmyadmin:
     image: lscr.io/linuxserver/phpmyadmin:latest
-    labels:
-      - dev.orbstack.domains=phpmaiadmin.local
+    # labels:
+      # - dev.orbstack.domains=phpmaiadmin.local
     container_name: lamp_phpmyadmin
     restart: always
     ports:
