@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  apache:
+    image: php:8.2-apache
+    labels:
+      - dev.orbstack.domains=apache-www.local
+    container_name: lamp_apache
+    restart: always
+    volumes:
+      - ./www:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    environment:
+      - APACHE_RUN_USER=#1000
+      - APACHE_RUN_GROUP=#1000
+
+  mysql:
+    image: mysql:8.0
+    labels:
+      - dev.orbstack.domains=miesecuele.local
+    container_name: lamp_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: K4l1t3st.
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: lscr.io/linuxserver/phpmyadmin:latest
+    labels:
+      - dev.orbstack.domains=phpmaiadmin.local
+    container_name: lamp_phpmyadmin
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: root
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
