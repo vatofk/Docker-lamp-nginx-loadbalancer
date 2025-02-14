@@ -3,24 +3,33 @@ version: '3.8'
 services:
   apache:
     image: php:8.2-apache
-    # labels:
-      # - dev.orbstack.domains=apache-www.local
     container_name: lamp_apache
     restart: always
     volumes:
       - ./www:/var/www/html
+      - ./ssh/authorized_keys:/root/.ssh/authorized_keys # Para acceso SSH
     ports:
       - "8080:80"
+      - "2222:22" # Puerto SSH
     depends_on:
       - mysql
     environment:
       - APACHE_RUN_USER=#1000
       - APACHE_RUN_GROUP=#1000
+    command: >
+      bash -c "apt update &&
+               apt install -y openssh-server &&
+               mkdir -p /run/sshd &&
+               useradd -m -s /bin/bash dev &&
+               echo 'dev:password' | chpasswd &&
+               service ssh start &&
+               apache2-foreground"
+    networks:
+      lamp_network:
+        ipv4_address: 10.10.10.10/24
 
   mysql:
     image: mysql:8.0
-    # labels:
-    #   - dev.orbstack.domains=miesecuele.local
     container_name: lamp_mysql
     restart: always
     environment:
@@ -32,11 +41,12 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      lamp_network:
+        ipv4_address: 10.10.10.11/24
 
   phpmyadmin:
     image: lscr.io/linuxserver/phpmyadmin:latest
-    # labels:
-      # - dev.orbstack.domains=phpmaiadmin.local
     container_name: lamp_phpmyadmin
     restart: always
     ports:
@@ -46,6 +56,17 @@ services:
       MYSQL_ROOT_PASSWORD: root
     depends_on:
       - mysql
+    networks:
+      lamp_network:
+        ipv4_address: 10.10.10.12/24
 
 volumes:
   mysql_data:
+
+
+networks:
+  lamp_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.10.0/24
