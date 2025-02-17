@@ -10,7 +10,7 @@ ________________________________________________________________________
 
 networks:
   red_nginx:
-    external: true  # Usar una red creada con anterioridad (CLI )
+    external: true  # Usar una red creada con anterioridad (CLI)
 ________________________________________________________________________
 
 # Lista las networks disponibles
