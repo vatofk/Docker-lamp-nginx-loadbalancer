@@ -1,15 +1,13 @@
-version: '3.8'
-
 services:
   apache:
     image: php:8.2-apache
     container_name: lamp_apache
     restart: always
     volumes:
-      - ./www:/var/www/html
+      - ./var/www/html:/var/www/html
       - ./ssh/authorized_keys:/root/.ssh/authorized_keys # Para acceso SSH
     ports:
-      - "8080:80"
+      - "8888:80"
       - "2222:22" # Puerto SSH
     depends_on:
       - mysql
@@ -18,15 +16,17 @@ services:
       - APACHE_RUN_GROUP=#1000
     command: >
       bash -c "apt update &&
+               apt install -y net-tools &&
                apt install -y openssh-server &&
                mkdir -p /run/sshd &&
                useradd -m -s /bin/bash dev &&
                echo 'dev:password' | chpasswd &&
                service ssh start &&
-               apache2-foreground"
+               apache2-foreground &&
+               tail -f /dev/null"
     networks:
       lamp_network:
-        ipv4_address: 10.10.10.10/24
+        ipv4_address: 172.100.0.10
 
   mysql:
     image: mysql:8.0
@@ -36,21 +36,21 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: mydb
       MYSQL_USER: user
-      MYSQL_PASSWORD: K4l1t3st.
+      MYSQL_PASSWORD: K4l1t3st
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       lamp_network:
-        ipv4_address: 10.10.10.11/24
+        ipv4_address: 172.100.0.11
 
   phpmyadmin:
     image: lscr.io/linuxserver/phpmyadmin:latest
     container_name: lamp_phpmyadmin
     restart: always
     ports:
-      - "8081:80"
+      - "8180:80"
     environment:
       PMA_HOST: mysql
       MYSQL_ROOT_PASSWORD: root
@@ -58,7 +58,7 @@ services:
       - mysql
     networks:
       lamp_network:
-        ipv4_address: 10.10.10.12/24
+        ipv4_address: 172.100.0.12
 
 volumes:
   mysql_data:
@@ -69,4 +69,4 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 10.10.10.0/24
+        - subnet: 172.100.0.0/24

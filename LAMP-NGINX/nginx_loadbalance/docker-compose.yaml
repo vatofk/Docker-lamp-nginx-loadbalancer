@@ -1,0 +1,15 @@
+services:
+  nginx_lb:
+    image: nginx:latest
+    container_name: nginx_loadbalancer
+    networks:
+      red_nginx:
+        ipv4_address: 10.10.10.110
+    ports:
+      - "8080:80" # Puesto donde recibirás las solicitudes
+    volumes:
+      - ./config/nginx_lb.conf:/etc/nginx/nginx.conf:ro
+
+networks:
+  red_nginx:
+    external: true # Usar la red ya existente
